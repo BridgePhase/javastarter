@@ -1,0 +1,27 @@
+language: java
+
+before_install: 
+ - openssl aes-256-cbc -K $encrypted_432bca9ab536_key -iv $encrypted_432bca9ab536_iv -in jaime-aws.pem.enc -out jaime-aws.pem -d
+ - chmod +x gradlew
+
+script: 
+ - ./gradlew build awsRevision
+
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_ID
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: "jgr-deployments"
+    skip_cleanup: true
+    local_dir: build/distributions
+    upload_dir: javastarter/build-$TRAVIS_BUILD_NUMBER
+  - provider: codedeploy
+    access_key_id: $AWS_ACCESS_ID
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: "jgr-deployments"
+    skip_cleanup: true
+    local_dir: build/distributions
+    upload_dir: javastarter/build-$TRAVIS_BUILD_NUMBER
+    key: javastarter/build-$TRAVIS_BUILD_NUMBER/javastarter.zip
+    application: JavaStarter
+    deployment_group: TestDeploys

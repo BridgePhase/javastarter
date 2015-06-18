@@ -71,3 +71,21 @@ task 'createSource' << {
   sourceSets*.resources.srcDirs*.each { it.mkdirs() }
   new File(webAppDirName + '/WEB-INF').mkdirs()
 }
+
+task copyAppSpec(type: Copy) {
+  from 'appspec.yml'
+  into 'build/libs'
+}
+
+task copyScripts(type: Copy) {
+  from 'awsscripts'
+  into 'build/libs'
+}
+
+task awsRevision(type: Zip) {
+  from 'build/libs'  
+}
+
+awsRevision.dependsOn war
+awsRevision.dependsOn copyAppSpec
+awsRevision.dependsOn copyScripts
